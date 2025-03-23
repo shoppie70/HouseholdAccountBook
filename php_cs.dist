@@ -1,0 +1,99 @@
+<?php
+
+// PHP CS Fixer v3用の設定ファイルへの修正済みコード
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+
+return (new Config())
+    ->setRiskyAllowed(true) // リスキーなルールを許可
+    ->setRules([
+        '@PSR2' => true, // PSR-2標準に準拠
+        'binary_operator_spaces' => [
+            'operators' => [
+                '=>' => 'align', // => の位置を揃える
+                '=' => 'align',  // = の位置を揃える
+            ],
+        ],
+        'blank_line_after_namespace' => true, // namespace の後に空行
+        'blank_line_after_opening_tag' => true, // PHPタグ開始後に空行
+        'blank_line_before_statement' => [ // 空行を追加するステートメントを指定
+            'statements' => [
+                'break',
+                'continue',
+                'declare',
+                'return',
+                'throw',
+                'try',
+            ],
+        ],
+        'braces' => [
+            'allow_single_line_closure' => false, // シングルラインのクロージャを禁止
+            'position_after_anonymous_constructs' => 'same', // 無名クラス、関数の波括弧の位置
+            'position_after_control_structures' => 'same', // ifなど制御構文の波括弧の位置
+            'position_after_functions_and_oop_constructs' => 'next', // 関数、クラスの波括弧の位置
+        ],
+        'cast_spaces' => [
+            'space' => 'single', // キャスト後にスペース
+        ],
+        'concat_space' => [
+            'spacing' => 'one', // 文字列連結演算子にスペースを追加
+        ],
+        'combine_consecutive_issets' => true, // 連続する isset を1つに結合
+        'combine_consecutive_unsets' => true, // 連続する unset を1つに結合
+        'declare_strict_types' => false, // strict_types 宣言を追加しない
+        'function_declaration' => [
+            'closure_function_spacing' => 'one', // クロージャ関数の function の後にスペース
+        ],
+        'full_opening_tag' => true, // <?php を強制
+        'function_typehint_space' => true, // 型ヒントの後にスペース
+        'no_superfluous_phpdoc_tags' => false, // 不要なPHPDocタグは許可
+        'phpdoc_no_package' => false, // package タグを削除しない
+        'general_phpdoc_annotation_remove' => [ // 削除するPHPDoc注釈
+            'annotations' => ['author'], // PHPDocからauthorタグを削除
+        ],
+        'phpdoc_separation' => false, // PHPDocのセパレータを無効
+        'phpdoc_align' => [
+            'align' => 'vertical', // PHPDocのアラインメント
+        ],
+        'include' => true, // include 文の形式を統一
+        'increment_style' => [
+            'style' => 'pre', // ++、-- を前置スタイルに変更
+        ],
+        'is_null' => true, // is_null を使用（ === null を適用しない）
+        'line_ending' => true, // 改行文字を設定
+        'lowercase_cast' => true, // キャストを小文字に変更
+        'constant_case' => [ // 定数の表記スタイル
+            'case' => 'lower', // 定数を小文字に変更
+        ],
+        'lowercase_keywords' => true, // キーワードを小文字に変更
+        'trailing_comma_in_multiline' => false, // 複数行の配列で末尾カンマを削除
+        'no_leading_namespace_whitespace' => true, // namespace 前に空白を許可しない
+        'echo_tag_syntax' => [ // echo タグの使用
+            'format' => 'long', // <?= の代わりに <?php echo を使用
+        ],
+        'no_mixed_echo_print' => [
+            'use' => 'echo', // echo の使用を強制
+        ],
+        'no_multiline_whitespace_around_double_arrow' => true, // => 周辺で複数行の空白禁止
+        'no_superfluous_elseif' => true, // 不要な elseif を削除
+        'no_useless_else' => true, // 無駄な else を削除
+        'no_trailing_comma_in_singleline' => true, // シングルライン配列の末尾カンマ禁止
+        'no_trailing_whitespace' => true, // 行末の空白を削除
+        'no_unneeded_control_parentheses' => [ // 制御構文の () を必要に応じて削除
+            'statements' => [
+                'break',
+                'clone',
+                'continue',
+                'echo_print',
+                'return',
+                'switch_case',
+                'yield',
+            ],
+        ],
+    ])
+    ->setUsingCache(false) // キャッシュを使用しない設定
+    ->setFinder(
+        Finder::create()
+            ->exclude('vendor') // vendorディレクトリを除外
+            ->in(__DIR__) // 現在のディレクトリを指定
+    );

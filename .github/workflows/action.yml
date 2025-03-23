@@ -1,0 +1,90 @@
+# GitHub Actions Workflow for PHP CS Fixer version 3 integration
+
+name: php-cs-fixer
+
+on:
+    push:
+        branches:
+            - master
+            - main
+    pull_request:
+        branches:
+            - master
+            - main
+
+jobs:
+    php-cs-fixer:
+        runs-on: ubuntu-20.04 # Define OS version for the runner
+        steps:
+            # Step 1: Checkout code from the repository
+            -   uses: actions/checkout@v2
+
+            # Step 2: Setup PHP environment
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.2' # Specify PHP version
+                    extensions: bcmath, mbstring
+                    coverage: none
+
+            # Step 3: Git configuration
+            -   name: Git setting
+                run: |
+                    git config --local user.email "sho.tsuka.0709@gmail.com"
+                    git config --local user.name "shoppie70"
+
+            # Step 4: Download and prepare PHP CS Fixer (v3)
+            -   name: Prepare PHP CS Fixer v3
+                run: |
+                    wget https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/v3.24.0/php-cs-fixer.phar -O php-cs-fixer
+                    chmod a+x php-cs-fixer
+
+            # Step 5: Run PHP CS Fixer
+            -   name: Run PHP CS Fixer
+                run: PHP_CS_FIXER_IGNORE_ENV=1 php php-cs-fixer fix . --config=php_cs.dist
+
+            # Step 6: Setup Node.js environment
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: 16 # Updated to a modern Node.js version
+
+            # Step 7: Add step to check or create package.json
+            -   name: Ensure package.json exists
+                run: |
+                    if [ ! -f package.json ]; then
+                        echo "package.json not found. Creating a new one..."
+                        npm init -y
+                    else
+                        echo "package.json exists."
+                    fi
+
+            # Step 8: Cache NPM dependencies
+            -   name: Cache NPM modules
+                uses: actions/cache@v3 # Updated to use v3 of actions/cache
+                with:
+                    path: ~/.npm
+                    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                    restore-keys: ${{ runner.os }}-node-
+
+            # Step 9: Install NPM dependencies
+            -   name: Install NPM dependencies
+                run: npm install
+
+            # Step 10: Run Prettier for code formatting
+            -   name: Run Prettier
+                run: |
+                    npx prettier --write '**/*.{js,json,md,scss,css,html}' --tab-width 4
+
+            # Step 11: Commit and push changes
+            -   name: Commit and Push
+                run: |
+                    line=$(git diff | wc -l)
+                    if [ $line -eq 0 ]; then
+                      echo "コミットするものがないので終了"
+                      exit 0
+                    fi
+                    last_commit_msg=$(git log -1 --pretty=%B)
+                    git add .
+                    git commit -m "$last_commit_msg" -a
+                    git pull --rebase
+                    git push origin HEAD
