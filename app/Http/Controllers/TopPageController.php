@@ -85,7 +85,6 @@ class TopPageController extends Controller
                 'item'       => $item,
                 'households' => $households,
             ], 201);
-
         } catch (\RuntimeException $e) {
             DB::rollBack();
 
