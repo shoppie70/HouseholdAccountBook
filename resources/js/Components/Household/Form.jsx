@@ -1,8 +1,15 @@
 import React from "react";
 
-const HouseholdSubmitForm = ({handleSubmit, handleChange, formData, categories, paymentTypes}) => {
+const HouseholdSubmitForm = ({
+                                 handleSubmit,
+                                 handleChange,
+                                 formData,
+                                 dynamicCategories,
+                                 paymentTypes,
+                                 handlePaymentTypeChange
+                             }) => {
     return (
-        <div className="bg-white p-8 max-w-md w-full h-screen flex items-center">
+        <div className="bg-white p-8 xl:max-w-md w-full h-screen flex items-center">
             <div className="w-full">
                 <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">家計簿の入力</h2>
                 <form id="dataForm" className="space-y-4" onSubmit={handleSubmit}>
@@ -21,6 +28,25 @@ const HouseholdSubmitForm = ({handleSubmit, handleChange, formData, categories, 
                         />
                     </div>
 
+                    {/* 項目 */}
+                    <div>
+                        <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="item">
+                            項目
+                        </label>
+                        <select
+                            name="payment_type_id"
+                            id="item"
+                            onChange={handlePaymentTypeChange}
+                            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                            {Object.values(paymentTypes).map((item, index) => (
+                                <option key={index} value={item.id}>
+                                    {item.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* カテゴリ */}
                     <div>
                         <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="category">
@@ -30,30 +56,12 @@ const HouseholdSubmitForm = ({handleSubmit, handleChange, formData, categories, 
                             name="category_id"
                             id="category"
                             onChange={handleChange}
+                            value={formData.category_id}
                             className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
-                            {categories.map((category, index) => (
-                                <option key={index} value={category.id}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* 項目 */}
-                    <div>
-                        <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="item">
-                            項目
-                        </label>
-                        <select
-                            name="payment_type_id"
-                            id="item"
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            {paymentTypes.map((item, index) => (
-                                <option key={index} value={item.id}>
-                                    {item.name}
+                            {Object.entries(dynamicCategories).map(([categoryId, categoryName]) => (
+                                <option key={`dynamic${categoryId}`} value={categoryId}>
+                                    {categoryName}
                                 </option>
                             ))}
                         </select>
@@ -98,18 +106,6 @@ const HouseholdSubmitForm = ({handleSubmit, handleChange, formData, categories, 
                         </button>
                     </div>
                 </form>
-
-                {/* 固定リンク */}
-                <div className="fixed bottom-8 right-4">
-                    <a
-                        href="https://docs.google.com/spreadsheets/d/182ntR97YRwE8FBR4Zy1nihxvMzVJKRvNXm65OnqZQjA/edit?usp=sharing"
-                        className="px-4 py-2 bg-pink-500 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-300"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        家計簿シート
-                    </a>
-                </div>
             </div>
         </div>
     )

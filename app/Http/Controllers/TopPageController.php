@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Household;
 use App\Models\HouseholdCategory;
 use App\Models\PaymentType;
+use App\UseCases\Household\GetCreditCardExpenditureAction;
+use App\UseCases\Household\GetHouseholdDataByExpenditureAction;
+use App\UseCases\Household\GetHouseholdDataByIncomeAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -13,9 +16,13 @@ class TopPageController extends Controller
 {
     public function index()
     {
-        $categories = HouseholdCategory::query()
-            ->get()
-            ->toArray();
+        $expenditureCategories = HouseholdCategory::query()
+            ->expenditure()
+            ->pluck('name', 'id');
+
+        $inComeCategories = HouseholdCategory::query()
+            ->income()
+            ->pluck('name', 'id');
 
         $paymentTypes = PaymentType::query()
             ->get()
@@ -29,15 +36,18 @@ class TopPageController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $categoryIdArray = HouseholdCategory::query()
-            ->pluck('name', 'id')
-            ->toArray();
+        $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())();
+        $householdByIncome      = (new GetHouseholdDataByIncomeAction())();
+        $creditCardExpenditure = (new GetCreditCardExpenditureAction())();
 
         return Inertia::render('Index', [
-            'categories'      => $categories,
-            'paymentTypes'    => $paymentTypes,
-            'households'      => $households,
-            'categoryIdArray' => $categoryIdArray,
+            'expenditureCategories'  => $expenditureCategories,
+            'inComeCategories'       => $inComeCategories,
+            'paymentTypes'           => $paymentTypes,
+            'households'             => $households,
+            'householdByExpenditure' => $householdByExpenditure,
+            'householdByIncome'      => $householdByIncome,
+            'creditCardExpenditure'  => $creditCardExpenditure,
         ]);
     }
 
@@ -77,13 +87,20 @@ class TopPageController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())();
+            $householdByIncome      = (new GetHouseholdDataByIncomeAction())();
+            $creditCardExpenditure = (new GetCreditCardExpenditureAction())();
+
             DB::commit();
 
             return response()->json([
-                'ok'         => true,
-                'message'    => $message,
-                'item'       => $item,
-                'households' => $households,
+                'ok'                     => true,
+                'message'                => $message,
+                'item'                   => $item,
+                'households'             => $households,
+                'householdByExpenditure' => $householdByExpenditure,
+                'householdByIncome'      => $householdByIncome,
+                'creditCardExpenditure'  => $creditCardExpenditure,
             ], 201);
         } catch (\RuntimeException $e) {
             DB::rollBack();

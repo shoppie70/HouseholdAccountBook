@@ -14,9 +14,13 @@ class PaymentType extends Model
         'name',
         'description',
         'is_active',
+        'is_income',
+        'is_credit_card',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'      => 'boolean',
+        'is_income'      => 'boolean',
+        'is_credit_card' => 'boolean',
     ];
 }

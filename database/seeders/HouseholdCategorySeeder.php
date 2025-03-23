@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\HouseholdCategory;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class HouseholdCategorySeeder extends Seeder
@@ -31,6 +30,20 @@ class HouseholdCategorySeeder extends Seeder
             HouseholdCategory::query()
                 ->create([
                     'name' => $item,
+                ]);
+        }
+
+        $incomeItems = [
+            '夫',
+            '妻',
+            '共通',
+        ];
+
+        foreach ($incomeItems as $item) {
+            HouseholdCategory::query()
+                ->create([
+                    'name'      => $item,
+                    'is_income' => true,
                 ]);
         }
     }

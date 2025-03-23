@@ -12,11 +12,26 @@ class PaymentTypeSeeder extends Seeder
      */
     public function run(): void
     {
+        PaymentType::query()
+            ->create([
+                'name'           => '支出・カード',
+                'is_credit_card' => true,
+            ]);
+
         $items = [
             '支出・現金',
-            '支出・カード',
             '支出・口座',
             '支出・口座引落',
+        ];
+
+        foreach ($items as $item) {
+            PaymentType::query()
+                ->create([
+                    'name' => $item,
+                ]);
+        }
+
+        $items = [
             '収入・口座',
             '収入・現金',
         ];
@@ -24,7 +39,8 @@ class PaymentTypeSeeder extends Seeder
         foreach ($items as $item) {
             PaymentType::query()
                 ->create([
-                    'name' => $item,
+                    'name'      => $item,
+                    'is_income' => true,
                 ]);
         }
     }

@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->string('name');
             $table->string('description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_income')->default(false);
+            $table->boolean('is_credit_card')->default(false);
             $table->timestamps();
         });
     }

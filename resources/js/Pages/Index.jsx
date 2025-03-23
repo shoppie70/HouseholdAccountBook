@@ -1,33 +1,54 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import iziToast from "izitoast";
 import HouseholdSubmitForm from "@/Components/Household/Form.jsx";
+import Expenditure from "@/Components/Household/Expenditure.jsx";
+import Income from "@/Components/Household/Income.jsx";
+import Table from "@/Components/Household/Table.jsx";
 
-const HouseholdForm = ({categories = [], paymentTypes = [], households = [], categoryIdArray = []}) => {
-    const [categorySummary, setCategorySummary] = useState({});
+const HouseholdForm = ({
+                           expenditureCategories = [],
+                           inComeCategories = [],
+                           paymentTypes = [],
+                           households = [],
+                           householdByExpenditure = [],
+                           householdByIncome = [],
+                           creditCardExpenditure = 0
+                       }) => {
     const [householdItems, setHouseholdItems] = useState(households);
+    const [dynamicCategories, setDynamicCategories] = useState(expenditureCategories);
+    const [householdByExpenditureItems, setHouseholdByExpenditureItems] = useState(householdByExpenditure);
+    const [householdByIncomeItems, setHouseholdByIncomeItems] = useState(householdByIncome);
+    const [creditCardExpenditureItem, setCreditCardExpenditureItem] = useState(creditCardExpenditure);
+
+    // handlePaymentTypeChange関数の修正版
+    const handlePaymentTypeChange = (e) => {
+        const selectedPaymentType = e.target.value;
+        const selectedType = paymentTypes.find(type => type.id === Number(selectedPaymentType));
+
+        if (selectedType?.is_income) {
+            setDynamicCategories(inComeCategories); // 収入カテゴリに切り替え
+        } else {
+            setDynamicCategories(expenditureCategories); // 支出カテゴリに切り替え
+        }
+
+        handleChange(e);
+    };
+
+    useEffect(() => {
+        setFormData({
+            ...formData,
+            category_id: Object.keys(dynamicCategories)[0]
+        });
+    }, [dynamicCategories]); // dynamicCategoriesが変更されたときのみ実行
 
     // 初期状態のフォームデータを設定
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0], // 現在の日付
-        category_id: categories.length > 0 ? categories[0].id : '', // カテゴリがあれば最初を選択
+        category_id: Object.keys(dynamicCategories)[0],
         payment_type_id: paymentTypes.length > 0 ? paymentTypes[0].id : '', // 項目があれば最初を選択
-        amount: 0,
+        amount: 1000,
         memo: '',
     });
-
-    useEffect(() => {
-        // categories または items が非配列の場合の初期値設定チェック
-        if (!Array.isArray(categories) || !Array.isArray(paymentTypes)) {
-            console.error('カテゴリまたは項目は配列ではありません');
-        } else {
-            // 有効な配列なら初期データを安全に設定
-            setFormData((prev) => ({
-                ...prev,
-                category: categories.length > 0 ? categories[0] : '',
-                item: paymentTypes.length > 0 ? paymentTypes[0] : '',
-            }));
-        }
-    }, [categories, paymentTypes]);
 
     // 入力変更ハンドラ
     const handleChange = (e) => {
@@ -62,6 +83,9 @@ const HouseholdForm = ({categories = [], paymentTypes = [], households = [], cat
             }
 
             setHouseholdItems(result.households);
+            setHouseholdByExpenditureItems(result.householdByExpenditure);
+            setHouseholdByIncomeItems(result.householdByIncome);
+            setCreditCardExpenditureItem(result.creditCardExpenditure);
 
             iziToast.success({
                 title: "Success",
@@ -77,88 +101,28 @@ const HouseholdForm = ({categories = [], paymentTypes = [], households = [], cat
         }
     };
 
-    useEffect(() => {
-        // 現在の日付
-        const today = new Date();
-        // 今月の開始日
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-        // カテゴリごとの合計金額を計算
-        const summary = householdItems.reduce((acc, household) => {
-            const householdDate = new Date(household.date);
-
-            // データが今月のものか確認
-            if (householdDate >= startOfMonth && householdDate <= today) {
-                // category_idがすでに存在している場合
-                if (acc[household.category_id]) {
-                    acc[household.category_id] += household.amount;
-                } else {
-                    // 新しいカテゴリの場合は初期化
-                    acc[household.category_id] = household.amount;
-                }
-            }
-
-            return acc;
-        }, {});
-
-        // すべてのカテゴリを含むようにカテゴリIDの初期値を追加
-        categoryIdArray = Object.keys(categoryIdArray);
-
-        const completeSummary = categoryIdArray.reduce((acc, categoryId) => {
-            acc[categoryId] = summary[categoryId] || 0; // 入力されていない場合は0を設定
-            return acc;
-        }, {});
-
-        // 更新された集計結果をステートに反映
-        setCategorySummary(completeSummary);
-    }, [householdItems]); // householdItemsとカテゴリ一覧が変更されるたびに再集計
-
     return (
-        <div className="bg-orange-100 min-h-screen flex w-full">
+        <div className="bg-orange-100 min-h-screen flex flex-wrap xl:flex-nowrap w-full">
             <HouseholdSubmitForm
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 formData={formData}
-                categories={categories}
+                categories={expenditureCategories}
+                dynamicCategories={dynamicCategories}
                 paymentTypes={paymentTypes}
+                handlePaymentTypeChange={handlePaymentTypeChange}
             />
-            <div className="bg-white p-6">
-                <h2 className="text-xl font-bold text-gray-700 mb-6 border-b pb-2">カテゴリごとの今月の内訳</h2>
-                <div className="divide-y divide-gray-200">
-                    {Object.entries(categorySummary).map(([categoryId, totalAmount]) => (
-                        <div key={categoryId} className="flex justify-between items-center py-2">
-                            <span className="text-gray-600 font-medium">{categoryIdArray[categoryId]}</span>
-                            <span className="text-gray-800 font-semibold">¥{totalAmount.toLocaleString()}</span>
+            <div className="flex-1 w-full">
+                <div className="flex flex-wrap xl:flex-nowrap h-full gap-2">
+                    <div className="pr-4 xl:pr-0 py-4 pl-4 w-full xl:w-3/12">
+                        <div className="grid grid-cols-1 gap-4">
+                            <Expenditure householdByExpenditure={householdByExpenditureItems} creditCardExpenditureItem={creditCardExpenditureItem}/>
+                            <Income householdByIncome={householdByIncomeItems}/>
                         </div>
-                    ))}
-                </div>
-            </div>
-            <div className="flex-1">
-                <div className="divide-y divide-gray-200 bg-white h-screen overflow-y-scroll px-4">
-                    <div className="flex py-2 font-medium text-gray-500 border-b">
-                        <span className="min-w-[5rem]">日付</span>
-                        <span className="min-w-[10rem]">カテゴリ</span>
-                        <span className="min-w-[10rem]">支払い方法</span>
-                        <span className="min-w-[10rem]">金額</span>
-                        <span className="w-full">メモ</span>
                     </div>
-                    <ul>
-                        {Object.entries(householdItems).map(([householdId, householdRecord]) => (
-                            <li
-                                key={householdId}
-                                className="flex py-2 border-b items-center"
-                            >
-                                <span className="min-w-[5rem] text-gray-800">{new Date(householdRecord.date).toLocaleDateString('ja-JP', {
-                                    month: 'numeric',
-                                    day: 'numeric'
-                                })}</span>
-                                <span className="min-w-[10rem] text-gray-800">{householdRecord.category.name}</span>
-                                <span className="min-w-[10rem] text-gray-800">{householdRecord.payment_type.name}</span>
-                                <span className="min-w-[10rem] text-gray-800 font-semibold">¥{householdRecord.amount.toLocaleString()}</span>
-                                <span className="w-full text-gray-800">{householdRecord.memo}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="pl-4 pt-0 pb-4 xl:py-4 xl:pl-2 pr-4 w-full xl:w-9/12">
+                        <Table householdItems={householdItems}/>
+                    </div>
                 </div>
             </div>
         </div>
