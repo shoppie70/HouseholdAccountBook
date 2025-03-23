@@ -38,7 +38,7 @@ class TopPageController extends Controller
 
         $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())();
         $householdByIncome      = (new GetHouseholdDataByIncomeAction())();
-        $creditCardExpenditure = (new GetCreditCardExpenditureAction())();
+        $creditCardExpenditure  = (new GetCreditCardExpenditureAction())();
 
         return Inertia::render('Index', [
             'expenditureCategories'  => $expenditureCategories,
@@ -89,7 +89,7 @@ class TopPageController extends Controller
 
             $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())();
             $householdByIncome      = (new GetHouseholdDataByIncomeAction())();
-            $creditCardExpenditure = (new GetCreditCardExpenditureAction())();
+            $creditCardExpenditure  = (new GetCreditCardExpenditureAction())();
 
             DB::commit();
 
