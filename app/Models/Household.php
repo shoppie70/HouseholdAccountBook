@@ -18,6 +18,10 @@ class Household extends Model
         'memo',
     ];
 
+    protected $casts = [
+        'date' => 'date:Y-m-d',
+    ];
+
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(HouseholdCategory::class);

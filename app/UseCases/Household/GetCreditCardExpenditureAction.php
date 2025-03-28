@@ -6,9 +6,11 @@ use App\Models\Household;
 
 class GetCreditCardExpenditureAction
 {
-    public function __invoke(): string
+    public function __invoke($year, $month): string
     {
         $sum = Household::query()
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
             ->whereHas('paymentType', function ($query) {
                 $query->where('is_credit_card', true); // Filter where is_credit_card is true
             })

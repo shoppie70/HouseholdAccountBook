@@ -9,7 +9,7 @@ const HouseholdSubmitForm = ({
                                  handlePaymentTypeChange
                              }) => {
     return (
-        <div className="bg-white p-8 xl:max-w-md w-full h-screen flex items-center">
+        <div className="bg-white p-8 xl:max-w-md w-full h-svh flex items-center">
             <div className="w-full">
                 <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">家計簿の入力</h2>
                 <form id="dataForm" className="space-y-4" onSubmit={handleSubmit}>

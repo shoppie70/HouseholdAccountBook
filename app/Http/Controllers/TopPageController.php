@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Household;
 use App\Models\HouseholdCategory;
 use App\Models\PaymentType;
+use App\UseCases\Household\CalculateTotalExpenditureAction;
+use App\UseCases\Household\CalculateTotalIncomeAction;
 use App\UseCases\Household\GetCreditCardExpenditureAction;
 use App\UseCases\Household\GetHouseholdDataByExpenditureAction;
 use App\UseCases\Household\GetHouseholdDataByIncomeAction;
@@ -14,8 +16,12 @@ use Inertia\Inertia;
 
 class TopPageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $title = '家計簿';
+        $year  = $request->get('year') ?? date('Y');
+        $month = $request->get('month') ?? date('n');
+
         $expenditureCategories = HouseholdCategory::query()
             ->expenditure()
             ->pluck('name', 'id');
@@ -33,14 +39,19 @@ class TopPageController extends Controller
                 'category',
                 'paymentType',
             ])
-            ->orderBy('created_at', 'desc')
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->orderBy('date', 'desc')
             ->get();
 
-        $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())();
-        $householdByIncome      = (new GetHouseholdDataByIncomeAction())();
-        $creditCardExpenditure  = (new GetCreditCardExpenditureAction())();
+        $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())($year, $month);
+        $householdByIncome      = (new GetHouseholdDataByIncomeAction())($year, $month);
+        $creditCardExpenditure  = (new GetCreditCardExpenditureAction())($year, $month);
+        $totalExpenditure       = (new CalculateTotalExpenditureAction())($householdByExpenditure);
+        $totalIncome            = (new CalculateTotalIncomeAction())($householdByIncome);
 
         return Inertia::render('Index', [
+            'title'                  => $title,
             'expenditureCategories'  => $expenditureCategories,
             'inComeCategories'       => $inComeCategories,
             'paymentTypes'           => $paymentTypes,
@@ -48,6 +59,10 @@ class TopPageController extends Controller
             'householdByExpenditure' => $householdByExpenditure,
             'householdByIncome'      => $householdByIncome,
             'creditCardExpenditure'  => $creditCardExpenditure,
+            'totalExpenditure'       => $totalExpenditure,
+            'totalIncome'            => $totalIncome,
+            'year'                   => $year,
+            'month'                  => $month,
         ]);
     }
 
@@ -59,6 +74,13 @@ class TopPageController extends Controller
             if ($request->get('amount') <= 0 || $request->get('amount') === null) {
                 throw new \RuntimeException('金額を入力してください。');
             }
+
+            if ($request->get('year') === null || $request->get('month') === null) {
+                throw new \RuntimeException('年月情報がありません。');
+            }
+
+            $year  = $request->get('year');
+            $month = $request->get('month');
 
             $item = Household::query()
                 ->create($request->all());
@@ -84,12 +106,16 @@ class TopPageController extends Controller
                     'category',
                     'paymentType',
                 ])
-                ->orderBy('created_at', 'desc')
+                ->whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->orderBy('date', 'desc')
                 ->get();
 
-            $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())();
-            $householdByIncome      = (new GetHouseholdDataByIncomeAction())();
-            $creditCardExpenditure  = (new GetCreditCardExpenditureAction())();
+            $householdByExpenditure = (new GetHouseholdDataByExpenditureAction())($year, $month);
+            $householdByIncome      = (new GetHouseholdDataByIncomeAction())($year, $month);
+            $creditCardExpenditure  = (new GetCreditCardExpenditureAction())($year, $month);
+            $totalExpenditure       = (new CalculateTotalExpenditureAction())($householdByExpenditure);
+            $totalIncome            = (new CalculateTotalIncomeAction())($householdByIncome);
 
             DB::commit();
 
@@ -101,6 +127,8 @@ class TopPageController extends Controller
                 'householdByExpenditure' => $householdByExpenditure,
                 'householdByIncome'      => $householdByIncome,
                 'creditCardExpenditure'  => $creditCardExpenditure,
+                'totalExpenditure'       => $totalExpenditure,
+                'totalIncome'            => $totalIncome,
             ], 201);
         } catch (\RuntimeException $e) {
             DB::rollBack();

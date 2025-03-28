@@ -15,8 +15,8 @@ class HouseholdCategorySeeder extends Seeder
         $items = [
             '食費',
             '外食費',
-            'ガソリン',
-            'ETC',
+            '交通費',
+            '交際費',
             '趣味費',
             '日用品費',
             '通信費',
