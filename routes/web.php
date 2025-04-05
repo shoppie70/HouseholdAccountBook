@@ -12,6 +12,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [TopPageController::class, 'index'])->name('dashboard');
     Route::get('/index', [TopPageController::class, 'index'])->name('index');
     Route::post('/post', [TopPageController::class, 'post'])->name('post');
+    Route::post('/delete/{household}', [TopPageController::class, 'delete'])->name('delete');
 
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');

@@ -97,47 +97,74 @@ const HouseholdForm = ({
         });
     };
 
-    // フォーム送信ハンドラ
+    const getCsrfToken = () =>
+        document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    const createHeaders = (csrfToken) => ({
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+    });
+
+    const handleResponse = async (response) => {
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message); // エラーハンドリング
+        }
+        return result;
+    };
+
+    const showToast = (type, title, message) => {
+        const options = {
+            title,
+            message,
+            position: "topRight",
+        };
+        if (type === "success") {
+            iziToast.success(options);
+        } else {
+            iziToast.error(options);
+        }
+    };
+
+    const updateStateWithResult = (result) => {
+        setHouseholdItems(result.households);
+        setHouseholdByExpenditureItems(result.householdByExpenditure);
+        setHouseholdByIncomeItems(result.householdByIncome);
+        setCreditCardExpenditureItem(result.creditCardExpenditure);
+        setTotalExpenditureItem(result.totalExpenditure);
+        setTotalIncomeItem(result.totalIncome);
+    };
+
+    const handleApiCall = async (url, method, bodyData) => {
+        const csrfToken = getCsrfToken();
+        const headers = createHeaders(csrfToken);
+
+        const response = await fetch(url, {
+            method,
+            headers,
+            body: JSON.stringify(bodyData),
+        });
+        return handleResponse(response);
+    };
+
+    const deleteItem = async (householdId) => {
+        try {
+            const result = await handleApiCall(`/delete/${householdId}`, 'POST', formData);
+            updateStateWithResult(result);
+            showToast("success", "Success", result.message);
+        } catch (error) {
+            showToast("error", "エラー", error.message);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault(); // ページのリロードを防止
-
         try {
-            // CSRFトークン対策: メタタグから取得
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            const response = await fetch('/post', {
-                method: 'POST', // HTTPメソッド
-                headers: {
-                    'Content-Type': 'application/json', // JSONデータを送信
-                    'X-CSRF-TOKEN': csrfToken, // CSRFトークンをヘッダに追加
-                },
-                body: JSON.stringify(formData), // フォームデータをJSON形式で送信
-            });
-
-            const result = await response.json(); // レスポンスのJSONデータを取得
-
-            if (!response.ok) {
-                throw new Error(result.message); // エラーハンドリング
-            }
-
-            setHouseholdItems(result.households);
-            setHouseholdByExpenditureItems(result.householdByExpenditure);
-            setHouseholdByIncomeItems(result.householdByIncome);
-            setCreditCardExpenditureItem(result.creditCardExpenditure);
-            setTotalExpenditureItem(result.totalExpenditure);
-            setTotalIncomeItem(result.totalIncome);
-
-            iziToast.success({
-                title: "Success",
-                message: result.message,
-                position: "topRight"
-            });
+            const result = await handleApiCall('/post', 'POST', formData);
+            updateStateWithResult(result);
+            showToast("success", "Success", result.message);
         } catch (error) {
-            iziToast.error({
-                title: "エラー",
-                message: error.message,
-                position: "topRight"
-            });
+            showToast("error", "エラー", error.message);
         }
     };
 
@@ -155,8 +182,8 @@ const HouseholdForm = ({
                 handlePaymentTypeChange={handlePaymentTypeChange}
             />
             <div className="flex-1 w-full">
-                <div className="flex flex-wrap 2xl:flex-nowrap h-full gap-2">
-                    <div className="pr-4 xl:pr-0 py-4 pl-4 w-full 2xl:w-3/12">
+                <div className="flex flex-wrap lg:flex-nowrap h-full gap-2">
+                    <div className="pr-4 xl:pr-0 py-4 pl-4 w-full md:w-5/12 2xl:w-3/12">
                         <div className="grid grid-cols-1 gap-4">
                             <div className="-mb-4">
                                 <MonthPicker
@@ -177,13 +204,14 @@ const HouseholdForm = ({
                             />
                         </div>
                     </div>
-                    <div className="pl-4 pt-0 pb-4 xl:py-4 xl:pl-2 pr-4 w-full 2xl:w-9/12 h-screen">
+                    <div className="pl-4 pt-0 pb-4 xl:py-4 xl:pl-2 pr-4 w-full md:w-7/12 2xl:w-9/12 h-screen">
                         <Table
                             year={yearState}
                             setYear={setYear}
                             month={monthState}
                             setMonth={setMonth}
                             householdItems={householdItems}
+                            deleteItem={deleteItem}
                         />
                     </div>
                 </div>

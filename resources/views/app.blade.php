@@ -11,20 +11,20 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="manifest" href="https://home.sho-tsukamoto.jp/pwa/manifest.json">
+    <link rel="manifest" href="{{ config('app.url') }}/pwa/manifest.json">
     <meta name="theme-color" content="#ffedd5">
 
     <!-- OGP -->
     <meta property="og:title" content="家計簿入力アプリ"/>
     <meta property="og:description" content="家計簿の支出データの追加が簡単にできるWebアプリです。"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:url" content="https://home.sho-tsukamoto.jp/"/>
-    <meta property="og:image" content="https://home.sho-tsukamoto.jp/pwa/ogp.jpg"/>
+    <meta property="og:url" content="{{ config('app.url') }}/"/>
+    <meta property="og:image" content="{{ config('app.url') }}/pwa/ogp.jpg"/>
     <meta property="og:locale" content="ja_JP"/>
     <meta name="twitter:card" content="summary_large_image"/>
     <meta name="twitter:title" content="家計簿入力アプリ"/>
     <meta name="twitter:description" content="家計簿の支出データの追加が簡単にできるWebアプリです。"/>
-    <meta name="twitter:image" content="https://home.sho-tsukamoto.jp/pwa/ogp.jpg"/>
+    <meta name="twitter:image" content="{{ config('app.url') }}/pwa/ogp.jpg"/>
 
     <!-- Scripts -->
     @routes
