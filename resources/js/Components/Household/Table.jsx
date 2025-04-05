@@ -12,7 +12,7 @@ const Table = ({householdItems, deleteItem}) => {
                     <th className="px-4 py-2 min-w-[8rem] lg:w-[10rem]">カテゴリ</th>
                     <th className="px-4 py-2 min-w-[8rem] lg:w-[10rem]">支払い方法</th>
                     <th className="px-4 py-2 min-w-[8rem] lg:w-[10rem]">金額</th>
-                    <th className="px-4 py-2 min-w-[6rem]">メモ</th>
+                    <th className="px-4 py-2 min-w-[6rem] whitespace-nowrap">メモ</th>
                     <th className="px-4 py-2 min-w-[5rem]">操作</th>
                 </tr>
                 </thead>
@@ -48,7 +48,7 @@ const Table = ({householdItems, deleteItem}) => {
                                 ¥{householdRecord.amount.toLocaleString()}
                             </td>
                             {/* メモ */}
-                            <td className="px-4 py-2 text-gray-800 text-sm">
+                            <td className="px-4 py-2 text-gray-800 text-sm w-full whitespace-nowrap">
                                 {householdRecord.memo}
                             </td>
                             {/* 削除ボタン */}
