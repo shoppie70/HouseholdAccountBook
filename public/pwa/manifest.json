@@ -1,7 +1,7 @@
 {
     "name": "家計簿入力",
     "short_name": "家計簿入力",
-    "start_url": "/",
+    "start_url": "/dashboard",
     "display": "standalone",
     "background_color": "#feedd5",
     "theme_color": "#feedd5",
