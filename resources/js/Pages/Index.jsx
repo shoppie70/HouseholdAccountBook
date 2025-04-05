@@ -6,6 +6,7 @@ import Income from "@/Components/Household/Income.jsx";
 import Table from "@/Components/Household/Table.jsx";
 import "izitoast/dist/css/iziToast.min.css";
 import {Head} from "@inertiajs/react";
+import MonthPicker from "@/Components/Household/MonthPicker.jsx";
 
 const HouseholdForm = ({
                            title,
@@ -157,6 +158,14 @@ const HouseholdForm = ({
                 <div className="flex flex-wrap 2xl:flex-nowrap h-full gap-2">
                     <div className="pr-4 xl:pr-0 py-4 pl-4 w-full 2xl:w-3/12">
                         <div className="grid grid-cols-1 gap-4">
+                            <div className="-mb-4">
+                                <MonthPicker
+                                    year={yearState}
+                                    setYear={setYear}
+                                    month={monthState}
+                                    setMonth={setMonth}
+                                />
+                            </div>
                             <Expenditure
                                 householdByExpenditure={householdByExpenditureItems}
                                 creditCardExpenditureItem={creditCardExpenditureItem}
