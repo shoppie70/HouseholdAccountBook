@@ -13,7 +13,7 @@ const Table = ({householdItems, deleteItem}) => {
                     <th className="px-4 py-2 min-w-[8rem] lg:w-[10rem]">支払い方法</th>
                     <th className="px-4 py-2 min-w-[8rem] lg:w-[10rem]">金額</th>
                     <th className="px-4 py-2 min-w-[6rem]">メモ</th>
-                    <th className="px-4 py-2 w-[5rem]">操作</th>
+                    <th className="px-4 py-2 min-w-[5rem]">操作</th>
                 </tr>
                 </thead>
                 {/* テーブルのボディ部分 */}
@@ -52,7 +52,7 @@ const Table = ({householdItems, deleteItem}) => {
                                 {householdRecord.memo}
                             </td>
                             {/* 削除ボタン */}
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-2 min-w-[5rem]">
                                 <button
                                     className="bg-red-700 hover:bg-red-900 text-white font-bold py-1 px-2 rounded text-xs"
                                     onClick={() => deleteItem(householdRecord.id)}>
